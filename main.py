@@ -14,7 +14,7 @@ import base64
 
 
 # # page config sets the text and icon that we see on the tab
-st.set_page_config(page_icon="📊", page_title="AutoInsights", layout="centered", initial_sidebar_state="auto", theme={"base": "light"})
+st.set_page_config(page_icon="📊", page_title="AutoInsights", layout="centered")
 
 hide_st_style = """
             <style>
