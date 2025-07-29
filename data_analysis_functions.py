@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from collections import Counter
 import plotly.express as px
+import ml_pipeline
 
 # Function to load the csv data to a dataframe
 def load_data(file):
@@ -42,6 +43,9 @@ def display_dataset_overview(df,cat_columns,num_columns):
     st.write(cat_columns)
     st.write(f"**Numerical Columns:** {len(num_columns)}")
     st.write(num_columns)
+
+    validation = ml_pipeline.validate_dataset(df)
+    st.write(f"**Missing Cells:** {validation['missing_cells']}")
     
 
 # Function to find the missing values in the dataset
