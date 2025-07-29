@@ -10,6 +10,7 @@ import data_analysis_functions as function
 import data_preprocessing_function as preprocessing_function
 import home_page
 import base64
+import ml_pipeline
 
 
 
@@ -61,8 +62,8 @@ st.markdown('<div class="tagline">Unleash the Power of Data with AutoInsights!</
 
 selected = option_menu(
     menu_title=None,
-    options=['Home', 'Data Exploration', 'Data Preprocessing'],
-    icons=['house-heart', 'bar-chart-fill', 'hammer'],
+    options=['Home', 'Data Exploration', 'Data Preprocessing', 'Model Training'],
+    icons=['house-heart', 'bar-chart-fill', 'hammer', 'cpu'],
     orientation='horizontal'
 )
 
@@ -343,3 +344,28 @@ else:
             st.markdown(f'<a href="{href}" download="preprocessed_data.csv"><button>Download Preprocessed Data</button></a>', unsafe_allow_html=True)
         else:
             st.warning("No preprocessed data available to download.")
+
+    if selected == 'Model Training':
+        st.header("Model Training and Evaluation")
+        if 'new_df' not in st.session_state:
+            st.info("Upload a dataset to start training.")
+        else:
+            target_col = st.selectbox("Target Column", st.session_state.new_df.columns)
+            test_size = st.slider("Test Size", 0.1, 0.5, 0.2, 0.05)
+            random_state = st.number_input("Random State", value=42, step=1)
+
+            if st.button("Train Baseline Model"):
+                with st.spinner("Training model..."):
+                    X_train, X_test, y_train, y_test = ml_pipeline.split_dataset(
+                        st.session_state.new_df, target_col, test_size, random_state
+                    )
+                    ptype = ml_pipeline.detect_problem_type(st.session_state.new_df[target_col])
+                    model = ml_pipeline.train_baseline_model(X_train, y_train, ptype)
+                    metrics = ml_pipeline.evaluate_model(model, X_test, y_test, ptype)
+                    st.session_state.trained_model = model
+                st.subheader("Evaluation Metrics")
+                st.json(metrics)
+
+            if 'trained_model' in st.session_state:
+                model_bytes = ml_pipeline.export_model(st.session_state.trained_model)
+                st.download_button("Download Model", model_bytes, file_name="trained_model.pkl")
